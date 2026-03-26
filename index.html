@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ميلودي عمار - المتجر</title>
+    <style>
+        /* إعدادات عامة */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: #f6f4f0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* حاوية الهاتف (للمحاكاة) */
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fffaf5;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* إخفاء الصفحات غير النشطة */
+        .view {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ---------------- التصميم: صفحات تسجيل الدخول والتحكم ---------------- */
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+
+        h1.logo {
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .input-group {
+            width: 100%;
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            background: #fff;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #b07e66;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn:hover { background-color: #9c6c55; }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: #b07e66;
+            border: 2px solid #b07e66;
+            margin-top: 15px;
+        }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* شريط التحميل */
+        .progress-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 8px;
+            margin-top: 15px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 8px;
+            background-color: #b07e66;
+            transition: width 0.1s;
+        }
+
+        /* ---------------- التصميم: واجهة المتجر الرئيسية ---------------- */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 10px;
+        }
+        
+        .header-logo {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .search-bar {
+            flex: 1;
+            margin: 0 15px;
+            background: #eee;
+            border-radius: 20px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .cart-icon {
+            position: relative;
+            font-size: 24px;
+        }
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background: #b07e66;
+            color: white;
+            font-size: 10px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-banner {
+            background-color: #e3d2c3;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .hero-content h2 { font-size: 22px; color: #5a3a2d; margin-bottom: 5px; }
+        .hero-content p { font-size: 14px; color: #5a3a2d; margin-bottom: 15px; }
+        .hero-btn { background: #b07e66; color: white; border: none; padding: 6px 15px; border-radius: 20px; font-weight: bold; width: fit-content; }
+        .hero-img { position: absolute; left: 0; bottom: 0; height: 100%; object-fit: cover; width: 50%; border-radius: 12px 0 0 12px;}
+
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+
+        .categories {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .cat-item {
+            text-align: center;
+            width: 22%;
+        }
+        .cat-img {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #e0d9d3;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            object-fit: cover;
+        }
+        .cat-title { font-size: 13px; font-weight: 600;}
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding-bottom: 50px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        .product-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #f0f0f0;
+        }
+        .fav-icon {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+        .product-title {
+            font-size: 12px;
+            color: #555;
+            margin: 8px 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .product-price { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .product-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <div id="view-login" class="view active">
+        <div class="auth-container">
+            <h1 class="logo">ميلودي عمار</h1>
+            <h3>تسجيل الدخول</h3>
+            <p style="color: #777; margin-bottom: 20px; font-size: 14px;">أدخل بياناتك للمتابعة</p>
+            
+            <div class="input-group">
+                <label>الاسم الكامل</label>
+                <input type="text" id="buyer-name" placeholder="اكتب اسمك هنا">
+            </div>
+            
+            <div class="input-group">
+                <label>رقم الهاتف (جزائري)</label>
+                <input type="number" id="buyer-phone" placeholder="05/06/07...">
+                <div class="error-msg" id="buyer-phone-error">رقم الهاتف غير صحيح. يجب أن يتكون من 10 أرقام ويبدأ بـ 05 أو 06 أو 07.</div>
+            </div>
+
+            <button class="btn" onclick="loginBuyer()">دخول للمتجر</button>
+            <button class="btn btn-outline" onclick="switchView('view-seller-reg')">تسجيل كبائع</button>
+        </div>
+    </div>
+
+    <div id="view-seller-reg" class="view">
+        <div class="auth-container">
+            <h1 class="logo">ميلودي عمار</h1>
+            <h3>تسجيل كبائع</h3>
+            <p style="color: #777; margin-bottom: 20px; font-size: 14px;">أدخل رقم هاتفك لفتح متجرك</p>
+            
+            <div class="input-group">
+                <label>رقم الهاتف (جزائري)</label>
+                <input type="number" id="seller-phone" placeholder="05/06/07...">
+                <div class="error-msg" id="seller-phone-error">رقم الهاتف غير صحيح. تأكد أنه يتكون من 10 أرقام.</div>
+            </div>
+
+            <button class="btn" onclick="registerSeller()">إنشاء حساب بائع</button>
+            <button class="btn btn-outline" style="border: none; color: #777;" onclick="switchView('view-login')">عودة لتسجيل الدخول</button>
+        </div>
+    </div>
+
+    <div id="view-dashboard" class="view">
+        <h1 class="logo" style="text-align:center; margin-top: 20px; font-size: 24px;">لوحة التحكم</h1>
+        <h3 style="margin-bottom: 20px;">إضافة منتج جديد</h3>
+        
+        <div class="input-group">
+            <label>اسم المنتج</label>
+            <input type="text" id="prod-name" placeholder="مثال: قميص صوفي">
+        </div>
+        
+        <div class="input-group">
+            <label>السعر (بالدينار الجزائري)</label>
+            <input type="number" id="prod-price" placeholder="مثال: 4500">
+        </div>
+        
+        <div class="input-group">
+            <label>صورة المنتج</label>
+            <input type="file" id="prod-image" accept="image/*" style="padding: 5px;">
+        </div>
+
+        <div class="progress-container" id="upload-progress-container">
+            <div class="progress-bar" id="upload-progress"></div>
+        </div>
+        <p id="upload-status" style="text-align: center; margin-top: 5px; font-size: 12px; color: #b07e66; display: none;">جاري رفع الصورة ونشر المنتج...</p>
+
+        <button class="btn" id="publish-btn" onclick="publishProduct()">نشر المنتج</button>
+        <button class="btn btn-outline" style="border: none; color: #777;" onclick="switchView('view-store')">الذهاب للمتجر</button>
+    </div>
+
+    <div id="view-store" class="view">
+        <div class="header">
+            <div class="header-logo">
+                <span style="display:block; font-size:12px; font-weight:500;">- فيلور -</span>
+                ميلودي عمار
+            </div>
+            <div class="search-bar">
+                <span>🔍 ابحث عن الأنماط...</span>
+            </div>
+            <div class="cart-icon">
+                🛒<div class="cart-badge">3</div>
+            </div>
+        </div>
+
+        <div class="hero-banner">
+            <img src="https://images.unsplash.com/photo-1515347619362-67fe22359b32?auto=format&fit=crop&q=80&w=400" class="hero-img" alt="Autumn Collection">
+            <div class="hero-content" style="width: 60%; position: relative; z-index: 2;">
+                <h2>مجموعة الخريف</h2>
+                <p>اكتشف أحدث الوصولات.</p>
+                <button class="hero-btn">تسوق الآن</button>
+            </div>
+        </div>
+
+        <h3 class="section-title">الفئات المميزة</h3>
+        <div class="categories">
+            <div class="cat-item">
+                <img src="https://images.unsplash.com/photo-1550614000-4b95d4ed7ed6?auto=format&fit=crop&q=60&w=100" class="cat-img">
+                <div class="cat-title">نسائي</div>
+            </div>
+            <div class="cat-item">
+                <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&q=60&w=100" class="cat-img">
+                <div class="cat-title">رجالي</div>
+            </div>
+            <div class="cat-item">
+                <img src="https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&q=60&w=100" class="cat-img">
+                <div class="cat-title">إكسسوارات</div>
+            </div>
+            <div class="cat-item">
+                <img src="https://images.unsplash.com/photo-1434389678369-182cb14f11fb?auto=format&fit=crop&q=60&w=100" class="cat-img">
+                <div class="cat-title">جديد</div>
+            </div>
+        </div>
+
+        <h3 class="section-title">وصل حديثاً</h3>
+        <div class="products-grid" id="products-grid">
+            </div>
+        
+    </div>
+</div>
+
+<script>
+    // --- دوال التنقل بين الصفحات ---
+    function switchView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        if(viewId === 'view-store') {
+            renderProducts();
+        }
+    }
+
+    // --- التحقق من رقم الهاتف الجزائري ---
+    // يقبل 10 أرقام تبدأ ب 05, 06 أو 07
+    function isValidAlgerianPhone(phone) {
+        const regex = /^0[567]\d{8}$/;
+        return regex.test(phone);
+    }
+
+    // --- منطق الدخول ---
+    function loginBuyer() {
+        const name = document.getElementById('buyer-name').value;
+        const phone = document.getElementById('buyer-phone').value;
+        const errorMsg = document.getElementById('buyer-phone-error');
+
+        if(name.trim() === '') {
+            alert('يرجى إدخال اسمك');
+            return;
+        }
+
+        if(!isValidAlgerianPhone(phone)) {
+            errorMsg.style.display = 'block';
+        } else {
+            errorMsg.style.display = 'none';
+            switchView('view-store');
+        }
+    }
+
+    function registerSeller() {
+        const phone = document.getElementById('seller-phone').value;
+        const errorMsg = document.getElementById('seller-phone-error');
+
+        if(!isValidAlgerianPhone(phone)) {
+            errorMsg.style.display = 'block';
+        } else {
+            errorMsg.style.display = 'none';
+            switchView('view-dashboard');
+        }
+    }
+
+    // --- منطق نشر المنتج ---
+    // منتجات افتراضية للتوضيح
+    let products = [
+        { name: "كنزة صوفية Soft Knit", price: 7900, image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=60&w=200", rating: 4.8, revs: 32 },
+        { name: "حقيبة Canvas Tote", price: 5500, image: "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=60&w=200", rating: 4.5, revs: 18 }
+    ];
+
+    // استرجاع المنتجات المحفوظة في المتصفح إن وجدت
+    if(localStorage.getItem('melodi_products')) {
+        products = JSON.parse(localStorage.getItem('melodi_products'));
+    }
+
+    function publishProduct() {
+        const name = document.getElementById('prod-name').value;
+        const price = document.getElementById('prod-price').value;
+        const fileInput = document.getElementById('prod-image');
+
+        if(!name || !price || fileInput.files.length === 0) {
+            alert("يرجى تعبئة جميع الحقول واختيار صورة");
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const base64Image = e.target.result;
+            
+            // محاكاة شريط التحميل
+            const progressContainer = document.getElementById('upload-progress-container');
+            const progressBar = document.getElementById('upload-progress');
+            const statusText = document.getElementById('upload-status');
+            const btn = document.getElementById('publish-btn');
+            
+            progressContainer.style.display = 'block';
+            statusText.style.display = 'block';
+            btn.disabled = true;
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = progress + '%';
+                
+                if(progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // حفظ المنتج
+                    const newProduct = {
+                        name: name,
+                        price: price,
+                        image: base64Image,
+                        rating: 5.0, // تقييم افتراضي
+                        revs: 0
+                    };
+                    
+                    // إضافته في بداية القائمة ليظهر أولاً
+                    products.unshift(newProduct);
+                    localStorage.setItem('melodi_products', JSON.stringify(products));
+
+                    // إعادة ضبط الواجهة والانتقال
+                    setTimeout(() => {
+                        progressContainer.style.display = 'none';
+                        statusText.style.display = 'none';
+                        progressBar.style.width = '0%';
+                        btn.disabled = false;
+                        
+                        // تفريغ الحقول
+                        document.getElementById('prod-name').value = '';
+                        document.getElementById('prod-price').value = '';
+                        document.getElementById('prod-image').value = '';
+
+                        alert("تم نشر المنتج بنجاح!");
+                        switchView('view-store');
+                    }, 500);
+                }
+            }, 150); // سرعة المحاكاة
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    // --- عرض المنتجات في المتجر ---
+    function renderProducts() {
+        const grid = document.getElementById('products-grid');
+        grid.innerHTML = '';
+
+        products.forEach(prod => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="fav-icon">♡</div>
+                <img src="${prod.image}" class="product-img" alt="${prod.name}">
+                <div class="product-title">${prod.name}</div>
+                <div class="product-price">${prod.price} د.ج</div>
+                <div class="product-meta">
+                    <span>⭐ ${prod.rating} (${prod.revs})</span>
+                    <span style="color:#b07e66; font-size:16px;">🛍️</span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+</script>
+</body>
+</html>
